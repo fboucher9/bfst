@@ -29,22 +29,6 @@ Tasks:
  */
 static unsigned int const cursorthickness = 1;
 
-/*
- * Default colors (colorname index)
- * foreground, background, cursor
- */
-static unsigned int const defaultfg = 7;
-static unsigned int const defaultbg = 0;
-static unsigned int const defaultcs = 22;
-
-/*
- * Colors used, when the specific fg == defaultfg. So in reverse mode this
- * will reverse too. Another logic would only make the simple feature too
- * complex.
- */
-static unsigned int const i_bfst_draw_sel_color = 11;
-/* static unsigned int const defaultunderline = 7; */
-
 static
 void
 bfst_rect(
@@ -87,7 +71,7 @@ bfst_draw_selection_segments(
 
     struct bfst_font const * const p_font = p_view_ctxt->p_font;
 
-    XColor const * p_outline_color = bfst_color_get(p_view_ctxt, i_bfst_draw_sel_color);
+    XColor const * p_outline_color = bfst_color_get(p_view_ctxt, p_view_ctxt->p_color->i_sel_index);
 
     XSetForeground(p_display->dpy, p_display->gc, p_outline_color->pixel);
 
@@ -161,7 +145,7 @@ bfst_clear(
 {
     bfst_rect(
         p_view_ctxt,
-        bfst_color_get(p_view_ctxt, defaultbg),
+        bfst_color_get(p_view_ctxt, p_view_ctxt->p_color->i_bg_index),
         x1,
         y1,
         x2-x1,
@@ -311,7 +295,7 @@ bfst_draw_cursor(
         return;
     }
 
-    p_color_cs = bfst_color_get(p_view_ctxt, defaultcs);
+    p_color_cs = bfst_color_get(p_view_ctxt, p_view_ctxt->p_color->i_cs_index);
 
     /* draw the new one */
     if (p_window->state & WIN_FOCUSED)
@@ -332,8 +316,8 @@ bfst_draw_cursor(
             case 0: /* Blinking Block */
             case 1: /* Blinking Block (Default) */
             case 2: /* Steady Block */
-                g.fg = defaultbg;
-                g.bg = defaultcs;
+                g.fg = p_view_ctxt->p_color->i_bg_index;
+                g.bg = p_view_ctxt->p_color->i_cs_index;
                 g.mode = ATTR_NULL;
 
                 /* g.mode |= p_term->line[p_term->c.y][curx].mode & ATTR_WIDE; */
@@ -548,8 +532,8 @@ bfst_draw_region(
                         else
                         {
                             new.u = ' ';
-                            new.fg = defaultfg;
-                            new.bg = defaultbg;
+                            new.fg = p_view_ctxt->p_color->i_fg_index;
+                            new.bg = p_view_ctxt->p_color->i_bg_index;
                             new.mode = ATTR_NULL;
                             new.flags = 0;
                         }
@@ -792,9 +776,9 @@ bfst_draw_resize(
             {
                 o_space.u = ' ';
 
-                o_space.fg = defaultfg;
+                o_space.fg = p_view_ctxt->p_color->i_fg_index;
 
-                o_space.bg = defaultbg;
+                o_space.bg = p_view_ctxt->p_color->i_bg_index;
 
                 o_space.mode = 0;
 

@@ -39,6 +39,7 @@ BFST_SRCS = \
     $(BFST_SRC_PATH)/bfst_log.c \
     $(BFST_SRC_PATH)/bfst_main.c \
     $(BFST_SRC_PATH)/bfst_opts.c \
+    $(BFST_SRC_PATH)/bfst_os.c \
     $(BFST_SRC_PATH)/bfst_ptr.c \
     $(BFST_SRC_PATH)/bfst_ptr_show.c \
     $(BFST_SRC_PATH)/bfst_sel.c \

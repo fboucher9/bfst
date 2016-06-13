@@ -20,10 +20,6 @@ Module: bfst_log.c
 
 #define BFST_LOG_MAX_COUNT 4000u
 
-#define BFST_LOG_DEFAULT_FG_COLOR 7
-
-#define BFST_LOG_DEFAULT_BG_COLOR 0
-
 void bfst_log_init(
     struct bfst_tty_ctxt const * const p_term_ctxt)
 {
@@ -169,9 +165,9 @@ bfst_log_get_char(
 
     o_space.u = ' ';
 
-    o_space.fg = BFST_LOG_DEFAULT_FG_COLOR;
+    o_space.fg = p_term_ctxt->p_view_ctxt->p_color->i_fg_index;
 
-    o_space.bg = BFST_LOG_DEFAULT_BG_COLOR;
+    o_space.bg = p_term_ctxt->p_view_ctxt->p_color->i_bg_index;
 
     o_space.mode = ATTR_NULL;
 

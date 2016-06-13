@@ -50,7 +50,7 @@ Description:
 */
 static void bfst_parse_geometry(
     struct bfst_options * const p_options,
-    char * const p_geometry_descriptor)
+    char const * const p_geometry_descriptor)
 {
     p_options->opt_gm = XParseGeometry(
             p_geometry_descriptor,
@@ -94,7 +94,7 @@ Description:
 char bfst_parse_options(
     struct bfst_options * const p_options,
     int argc,
-    char * * argv)
+    char const * const * argv)
 {
     char b_result;
 

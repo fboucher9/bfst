@@ -37,13 +37,6 @@ Module: bfst_tty.c
 /* identification sequence returned in DA and DECID */
 static char vtiden[] = "\033[?6c";
 
-/*
- * Default colors (colorname index)
- * foreground, background, cursor
- */
-static unsigned int defaultfg = 7;
-static unsigned int defaultbg = 0;
-
 static unsigned int tabspaces = 8;
 
 /* Globals */
@@ -184,8 +177,8 @@ treset(Term* p_term) {
 
         p_term->c = (TCursor){{
                 .mode = ATTR_NULL,
-                .fg = defaultfg,
-                .bg = defaultbg,
+                .fg = p_term->o_term_ctxt.p_view_ctxt->p_color->i_fg_index,
+                .bg = p_term->o_term_ctxt.p_view_ctxt->p_color->i_bg_index,
                 .flags = 0
         }, .x = 0, .y = 0, .state = CURSOR_DEFAULT};
 
@@ -232,8 +225,8 @@ tnew(
     p_term->o_term_ctxt.p_child = &p_term->child;
 
     p_term->c.shape = 0;
-    p_term->c.attr.fg = defaultfg;
-    p_term->c.attr.bg = defaultbg;
+    p_term->c.attr.fg = p_view_ctxt->p_color->i_fg_index;
+    p_term->c.attr.bg = p_view_ctxt->p_color->i_bg_index;
 
     tinitscreenptr(p_term);
 
@@ -717,8 +710,8 @@ tsetattr(Term* p_term, int *attr, int l) {
                                 ATTR_REVERSE    |
                                 ATTR_INVISIBLE  |
                                 ATTR_STRUCK     );
-                        p_term->c.attr.fg = defaultfg;
-                        p_term->c.attr.bg = defaultbg;
+                        p_term->c.attr.fg = p_term->o_term_ctxt.p_view_ctxt->p_color->i_fg_index;
+                        p_term->c.attr.bg = p_term->o_term_ctxt.p_view_ctxt->p_color->i_bg_index;
                         break;
                 case 1:
                         p_term->c.attr.mode |= ATTR_BOLD;
@@ -772,14 +765,14 @@ tsetattr(Term* p_term, int *attr, int l) {
                                 p_term->c.attr.fg = idx;
                         break;
                 case 39:
-                        p_term->c.attr.fg = defaultfg;
+                        p_term->c.attr.fg = p_term->o_term_ctxt.p_view_ctxt->p_color->i_fg_index;
                         break;
                 case 48:
                         if ((idx = tdefcolor(p_term, attr, &i, l)) >= 0)
                                 p_term->c.attr.bg = idx;
                         break;
                 case 49:
-                        p_term->c.attr.bg = defaultbg;
+                        p_term->c.attr.bg = p_term->o_term_ctxt.p_view_ctxt->p_color->i_bg_index;
                         break;
                 default:
                         if(BFST_TOOLS_BETWEEN(attr[i], 30, 37)) {
@@ -1276,32 +1269,54 @@ strhandle(Term* p_term) {
                                 xsettitle(p_term->strescseq.args[1]); */
                         return;
                 case 4: /* color set */
-                        if(narg < 3)
-                                break;
-                        p = p_term->strescseq.args[2];
-                        /* FALLTHROUGH */
-                case 104: /* color reset, here p = NULL */
-                        j = (narg > 1) ? atoi(p_term->strescseq.args[1]) : -1;
-                        if (bfst_color_set(p_term->o_term_ctxt.p_view_ctxt, j, p))
+                        if (narg > 1)
                         {
+                            j = atoi(p_term->strescseq.args[1]);
+                            if (narg > 2)
+                            {
+                                p = p_term->strescseq.args[2];
+                            }
+                            if (bfst_color_set(p_term->o_term_ctxt.p_view_ctxt, j, p))
+                            {
 #if defined(BFST_CFG_DEBUG)
-                                bfst_msg("erresc: invalid color %s\n", p);
+                                    bfst_msg("erresc: invalid color %s\n", p);
 #endif /* #if defined(BFST_CFG_DEBUG) */
+                                    return;
+                            }
+                            bfst_draw_invalidate(p_term->o_term_ctxt.p_view_ctxt);
+                        }
+                        return;
+                case 104: /* color reset, here p = NULL */
+                        if (narg > 1)
+                        {
+                            j = atoi(p_term->strescseq.args[1]);
+                            if (bfst_color_set(p_term->o_term_ctxt.p_view_ctxt, j, NULL))
+                            {
+#if defined(BFST_CFG_DEBUG)
+                                    bfst_msg("erresc: invalid color %s\n", p);
+#endif /* #if defined(BFST_CFG_DEBUG) */
+                                    return;
+                            }
                         }
                         else
                         {
-                            bfst_draw_invalidate(p_term->o_term_ctxt.p_view_ctxt);
-
-                                /*
-                                 * TODO if defaultbg color is changed, borders
-                                 * are dirty
-                                 */
+                            for (j = 0; j < 256; j++)
+                            {
+                                bfst_color_set(p_term->o_term_ctxt.p_view_ctxt, j, NULL);
+                            }
                         }
+                        bfst_draw_invalidate(p_term->o_term_ctxt.p_view_ctxt);
+
+                        /*
+                        * TODO if defaultbg color is changed, borders
+                        * are dirty
+                        */
                         return;
                 case 77:
-                        if (narg < 2)
-                            break;
-                        p = p_term->strescseq.args[1];
+                        if (narg > 1)
+                        {
+                            p = p_term->strescseq.args[1];
+                        }
                         bfst_body_set_font(p_term->o_term_ctxt.p_view_ctxt, (char const *)(p));
                         return;
                 }

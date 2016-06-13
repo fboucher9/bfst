@@ -46,7 +46,7 @@ Module: bfst_child.c
 #include "bfst_body.h"
 
 /* default SHELL value */
-static char a_bfst_child_shell[] = "/bin/zsh";
+static char a_bfst_child_shell[] = "/bin/sh";
 
 /* default TERM value */
 static char a_bfst_child_termname[] = "xterm-256color";
@@ -108,12 +108,12 @@ bfst_child_fixsig(void)
 static
 void
 bfst_child_execsh(
-    char * *
+    char const * const *
         opt_cmd,
     unsigned long int const
         win)
 {
-    char * sh [2];
+    char const * sh [2];
 
     const struct passwd *pw;
 
@@ -138,14 +138,14 @@ bfst_child_execsh(
     bfst_child_fixsig();
 
     {
-        char * prog;
-        char * * args;
+        char const * prog;
+        char const * const * args;
 
         prog = (opt_cmd) ? opt_cmd[0] : sh[0];
 
         args = (opt_cmd) ? opt_cmd : sh;
 
-        execvp(prog, args);
+        execvp((char *)(prog), (char * * )(args));
 
         _exit(EXIT_FAILURE);
     }

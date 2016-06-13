@@ -28,13 +28,13 @@ Description:
 struct bfst_options
 {
     /* Command-line of child process to launch within the terminal */
-    char * * opt_cmd;
+    char const * const * opt_cmd;
 
     /* Identification of parent window for embedding */
-    char * opt_embed;
+    char const * opt_embed;
 
     /* Name of font resource */
-    char * opt_font;
+    char const * opt_font;
 
     /* Left coordinate of geometry */
     int opt_left;
@@ -61,6 +61,6 @@ struct bfst_options
 char bfst_parse_options(
     struct bfst_options * const p_options,
     int argc,
-    char * * argv);
+    char const * const * argv);
 
 /* end-of-file: bfst_opts.h */

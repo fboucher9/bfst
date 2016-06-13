@@ -237,10 +237,24 @@ void bfst_color_load_all(
 {
     int i_color_index;
 
+    struct bfst_color * const p_color = p_view_ctxt->p_color;
+
     for (i_color_index = 0; i_color_index < BFST_COLOR_MAX; i_color_index++)
     {
         bfst_color_set(p_view_ctxt, i_color_index, NULL);
     }
+
+    /* Index of default foreground color */
+    p_color->i_fg_index = 7;
+
+    /* Index of default background color */
+    p_color->i_bg_index = 0;
+
+    /* Index of cursor color */
+    p_color->i_cs_index = 22;
+
+    /* Index of selection rectangle */
+    p_color->i_sel_index = 11;
 
 } /* bfst_color_load_all() */
 

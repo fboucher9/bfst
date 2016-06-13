@@ -36,6 +36,18 @@ struct bfst_color
     /* Table of 256 colors */
     XColor a_color[BFST_COLOR_MAX];
 
+    /* Index of default foreground color */
+    unsigned char i_fg_index;
+
+    /* Index of default background color */
+    unsigned char i_bg_index;
+
+    /* Index of cursor color */
+    unsigned char i_cs_index;
+
+    /* Index of selection rectangle */
+    unsigned char i_sel_index;
+
 }; /* struct bfst_color */
 
 XColor const * bfst_color_get(

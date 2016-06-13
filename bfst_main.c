@@ -18,6 +18,8 @@ Description:
 
 #include "bfst_body.h"
 
+#include "bfst_main.h"
+
 /*
 
 Function: bfst_main_detach()
@@ -50,7 +52,10 @@ Description:
     Process command-line options and run the bfst_body module.
 
 */
-static int bfst_main(int argc, char * argv[])
+int
+bfst_main(
+    int const argc,
+    char const * const * const argv)
 {
     struct bfst_options o_options;
 
@@ -75,19 +80,5 @@ static int bfst_main(int argc, char * argv[])
     return 0;
 
 } /* bfst_main() */
-
-/*
-
-Function: main()
-
-Description:
-
-    Standard C entry point.  Convert parameters and dispatch to portable entry point.
-
-*/
-int main(int argc, char *argv[])
-{
-    return bfst_main(argc, argv);
-}
 
 /* end-of-file: bfst_main.c */
