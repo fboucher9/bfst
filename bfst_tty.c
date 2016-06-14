@@ -177,8 +177,8 @@ treset(Term* p_term) {
 
         p_term->c = (TCursor){{
                 .mode = ATTR_NULL,
-                .fg = p_term->o_term_ctxt.p_view_ctxt->p_color->i_fg_index,
-                .bg = p_term->o_term_ctxt.p_view_ctxt->p_color->i_bg_index,
+                .fg = BFST_COLOR_FG,
+                .bg = BFST_COLOR_BG,
                 .flags = 0
         }, .x = 0, .y = 0, .state = CURSOR_DEFAULT};
 
@@ -225,8 +225,8 @@ tnew(
     p_term->o_term_ctxt.p_child = &p_term->child;
 
     p_term->c.shape = 0;
-    p_term->c.attr.fg = p_view_ctxt->p_color->i_fg_index;
-    p_term->c.attr.bg = p_view_ctxt->p_color->i_bg_index;
+    p_term->c.attr.fg = BFST_COLOR_FG;
+    p_term->c.attr.bg = BFST_COLOR_BG;
 
     tinitscreenptr(p_term);
 
@@ -591,6 +591,60 @@ tdeleteline(Term* p_term, int n)
 
 static
 unsigned char
+rgb_to_idx(
+    int r,
+    int g,
+    int b)
+{
+    int idx;
+    int r6;
+    int g6;
+    int b6;
+
+    /* Limit to 0-255 range */
+    if (r > 255) r = 255;
+    if (g > 255) g = 255;
+    if (b > 255) b = 255;
+
+    r6 = ((r * 6) / 256);
+    g6 = ((g * 6) / 256);
+    b6 = ((b * 6) / 256);
+
+    /* Detect gray scale */
+    if ((r6 == g6) && (r6 == b6))
+    {
+        int i;
+
+        /* Calculate gray intensity */
+        i = ((r * 26) / 256);
+
+        /* Detect black */
+        if (0 == i)
+        {
+            idx = 16;
+        }
+        /* Detect white */
+        else if (25 == i)
+        {
+            idx = 231;
+        }
+        else
+        {
+            /* 24 intensities of gray */
+            idx = 232 + (i - 1);
+        }
+    }
+    else
+    {
+        /* Try to find matching color */
+        idx = 16 + (r6*36) + (g6*6) + (b6*1);
+    }
+
+    return idx;
+}
+
+static
+unsigned char
 tdefcolor(
     struct bfst_tty * const p_term,
     int *attr,
@@ -619,13 +673,7 @@ tdefcolor(
                 b = attr[*npar + 4];
                 *npar += 4;
 
-                /* Limit to 0-255 range */
-                if (r > 255) r = 255;
-                if (g > 255) g = 255;
-                if (b > 255) b = 255;
-
-                /* Try to find matching color */
-                idx = 16 + (((r * 6)/256)*36) + (((g * 6)/256)*6) + (((b * 6)/256)*1);
+                idx = rgb_to_idx(r, g, b);
                 break;
         case 5: /* indexed color */
                 if (*npar + 2 >= l)
@@ -710,8 +758,8 @@ tsetattr(Term* p_term, int *attr, int l) {
                                 ATTR_REVERSE    |
                                 ATTR_INVISIBLE  |
                                 ATTR_STRUCK     );
-                        p_term->c.attr.fg = p_term->o_term_ctxt.p_view_ctxt->p_color->i_fg_index;
-                        p_term->c.attr.bg = p_term->o_term_ctxt.p_view_ctxt->p_color->i_bg_index;
+                        p_term->c.attr.fg = BFST_COLOR_FG;
+                        p_term->c.attr.bg = BFST_COLOR_BG;
                         break;
                 case 1:
                         p_term->c.attr.mode |= ATTR_BOLD;
@@ -765,14 +813,14 @@ tsetattr(Term* p_term, int *attr, int l) {
                                 p_term->c.attr.fg = idx;
                         break;
                 case 39:
-                        p_term->c.attr.fg = p_term->o_term_ctxt.p_view_ctxt->p_color->i_fg_index;
+                        p_term->c.attr.fg = BFST_COLOR_FG;
                         break;
                 case 48:
                         if ((idx = tdefcolor(p_term, attr, &i, l)) >= 0)
                                 p_term->c.attr.bg = idx;
                         break;
                 case 49:
-                        p_term->c.attr.bg = p_term->o_term_ctxt.p_view_ctxt->p_color->i_bg_index;
+                        p_term->c.attr.bg = BFST_COLOR_BG;
                         break;
                 default:
                         if(BFST_TOOLS_BETWEEN(attr[i], 30, 37)) {
@@ -1290,13 +1338,7 @@ strhandle(Term* p_term) {
                         if (narg > 1)
                         {
                             j = atoi(p_term->strescseq.args[1]);
-                            if (bfst_color_set(p_term->o_term_ctxt.p_view_ctxt, j, NULL))
-                            {
-#if defined(BFST_CFG_DEBUG)
-                                    bfst_msg("erresc: invalid color %s\n", p);
-#endif /* #if defined(BFST_CFG_DEBUG) */
-                                    return;
-                            }
+                            bfst_color_set(p_term->o_term_ctxt.p_view_ctxt, j, NULL);
                         }
                         else
                         {
@@ -1311,6 +1353,38 @@ strhandle(Term* p_term) {
                         * TODO if defaultbg color is changed, borders
                         * are dirty
                         */
+                        return;
+                case 10: /* change foreground */
+                        if (narg > 1)
+                        {
+                            p = p_term->strescseq.args[1];
+                        }
+                        bfst_color_set(p_term->o_term_ctxt.p_view_ctxt, BFST_COLOR_FG, p);
+                        bfst_draw_invalidate(p_term->o_term_ctxt.p_view_ctxt);
+                        return;
+                case 11: /* change background */
+                        if (narg > 1)
+                        {
+                            p = p_term->strescseq.args[1];
+                        }
+                        bfst_color_set(p_term->o_term_ctxt.p_view_ctxt, BFST_COLOR_BG, p);
+                        bfst_draw_invalidate(p_term->o_term_ctxt.p_view_ctxt);
+                        return;
+                case 12: /* change cursor color */
+                        if (narg > 1)
+                        {
+                            p = p_term->strescseq.args[1];
+                        }
+                        bfst_color_set(p_term->o_term_ctxt.p_view_ctxt, BFST_COLOR_CS, p);
+                        bfst_draw_invalidate(p_term->o_term_ctxt.p_view_ctxt);
+                        return;
+                case 17: /* change selection color */
+                        if (narg > 1)
+                        {
+                            p = p_term->strescseq.args[1];
+                        }
+                        bfst_color_set(p_term->o_term_ctxt.p_view_ctxt, BFST_COLOR_SEL, p);
+                        bfst_draw_invalidate(p_term->o_term_ctxt.p_view_ctxt);
                         return;
                 case 77:
                         if (narg > 1)

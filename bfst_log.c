@@ -165,9 +165,9 @@ bfst_log_get_char(
 
     o_space.u = ' ';
 
-    o_space.fg = p_term_ctxt->p_view_ctxt->p_color->i_fg_index;
+    o_space.fg = BFST_COLOR_FG;
 
-    o_space.bg = p_term_ctxt->p_view_ctxt->p_color->i_bg_index;
+    o_space.bg = BFST_COLOR_BG;
 
     o_space.mode = ATTR_NULL;
 

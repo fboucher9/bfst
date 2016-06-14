@@ -22,6 +22,18 @@ struct bfst_view_ctxt;
 /* Maximum number of entries in color table */
 #define BFST_COLOR_MAX 256
 
+/* Index of foreground color in color table */
+#define BFST_COLOR_FG 188
+
+/* Index of background color in color table */
+#define BFST_COLOR_BG 16
+
+/* Index of cursor color in color table */
+#define BFST_COLOR_CS 22
+
+/* Index of selection color in color table */
+#define BFST_COLOR_SEL 226
+
 /*
 
 Structure: bfst_color
@@ -35,18 +47,6 @@ struct bfst_color
 {
     /* Table of 256 colors */
     XColor a_color[BFST_COLOR_MAX];
-
-    /* Index of default foreground color */
-    unsigned char i_fg_index;
-
-    /* Index of default background color */
-    unsigned char i_bg_index;
-
-    /* Index of cursor color */
-    unsigned char i_cs_index;
-
-    /* Index of selection rectangle */
-    unsigned char i_sel_index;
 
 }; /* struct bfst_color */
 

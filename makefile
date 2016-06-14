@@ -22,6 +22,9 @@ BFST_CC = $(CC)
 # Select compiler flags
 BFST_CFLAGS = $(CFLAGS) -g -std=c99 -pedantic -Wall -Wextra -Wvariadic-macros -Os -D_XOPEN_SOURCE=600
 
+# Uncomment the following line to enable debugging messages
+# BFST_CFLAGS += -DBFST_CFG_DEBUG
+
 # Select linker flags
 BFST_LFLAGS = $(LDFLAGS) -lc -lm -lrt -lutil -lX11
 

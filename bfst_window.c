@@ -29,7 +29,7 @@ static void bfst_window_fill_attributes(
     /* Set the default background color for the window.  This color is used by
        X11 when clearing the background of the window on a resize event.
        This attribute may be updated later if the color theme is changed. */
-    p_window_attributes->background_pixel = bfst_color_get(p_view_ctxt, 0)->pixel;
+    p_window_attributes->background_pixel = bfst_color_get(p_view_ctxt, BFST_COLOR_BG)->pixel;
 
     /* Set the default border color.  This may be overriden by the window manager. */
     {

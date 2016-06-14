@@ -71,7 +71,7 @@ bfst_draw_selection_segments(
 
     struct bfst_font const * const p_font = p_view_ctxt->p_font;
 
-    XColor const * p_outline_color = bfst_color_get(p_view_ctxt, p_view_ctxt->p_color->i_sel_index);
+    XColor const * p_outline_color = bfst_color_get(p_view_ctxt, BFST_COLOR_SEL);
 
     XSetForeground(p_display->dpy, p_display->gc, p_outline_color->pixel);
 
@@ -145,7 +145,7 @@ bfst_clear(
 {
     bfst_rect(
         p_view_ctxt,
-        bfst_color_get(p_view_ctxt, p_view_ctxt->p_color->i_bg_index),
+        bfst_color_get(p_view_ctxt, BFST_COLOR_BG),
         x1,
         y1,
         x2-x1,
@@ -295,7 +295,7 @@ bfst_draw_cursor(
         return;
     }
 
-    p_color_cs = bfst_color_get(p_view_ctxt, p_view_ctxt->p_color->i_cs_index);
+    p_color_cs = bfst_color_get(p_view_ctxt, BFST_COLOR_CS);
 
     /* draw the new one */
     if (p_window->state & WIN_FOCUSED)
@@ -316,8 +316,8 @@ bfst_draw_cursor(
             case 0: /* Blinking Block */
             case 1: /* Blinking Block (Default) */
             case 2: /* Steady Block */
-                g.fg = p_view_ctxt->p_color->i_bg_index;
-                g.bg = p_view_ctxt->p_color->i_cs_index;
+                g.fg = BFST_COLOR_BG;
+                g.bg = BFST_COLOR_CS;
                 g.mode = ATTR_NULL;
 
                 /* g.mode |= p_term->line[p_term->c.y][curx].mode & ATTR_WIDE; */
@@ -532,8 +532,8 @@ bfst_draw_region(
                         else
                         {
                             new.u = ' ';
-                            new.fg = p_view_ctxt->p_color->i_fg_index;
-                            new.bg = p_view_ctxt->p_color->i_bg_index;
+                            new.fg = BFST_COLOR_FG;
+                            new.bg = BFST_COLOR_BG;
                             new.mode = ATTR_NULL;
                             new.flags = 0;
                         }
@@ -688,7 +688,7 @@ bfst_draw_invalidate(
 
     /* Refresh the default background color of window */
     {
-        XColor const * const p_bg_color = bfst_color_get(p_view_ctxt, 0);
+        XColor const * const p_bg_color = bfst_color_get(p_view_ctxt, BFST_COLOR_BG);
 
         XSetWindowBackground(
             p_display->dpy,
@@ -776,9 +776,9 @@ bfst_draw_resize(
             {
                 o_space.u = ' ';
 
-                o_space.fg = p_view_ctxt->p_color->i_fg_index;
+                o_space.fg = BFST_COLOR_FG;
 
-                o_space.bg = p_view_ctxt->p_color->i_bg_index;
+                o_space.bg = BFST_COLOR_BG;
 
                 o_space.mode = 0;
 
