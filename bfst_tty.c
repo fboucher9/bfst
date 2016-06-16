@@ -325,6 +325,22 @@ tscrollup(Term* p_term, int orig, int n)
             {
                 bfst_log_scroll(&(p_term->o_term_ctxt), i);
             }
+
+            /* Adjust view to follow the scrolling */
+            {
+                struct bfst_draw * const p_draw = p_term->o_term_ctxt.p_view_ctxt->p_draw;
+
+                if (p_draw->top < 0)
+                {
+                    p_draw->top -= n;
+
+                    /* Clip view to size of log */
+                    if ((unsigned int)(-p_draw->top) > (p_term->log.i_count))
+                    {
+                        p_draw->top = -(p_term->log.i_count);
+                    }
+                }
+            }
         }
 
         for(i = orig; i <= p_term->bot-n; i++) {

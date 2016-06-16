@@ -210,9 +210,14 @@ void bfst_child_new(
     p_child->i_read_fd = p_child->i_pty_fd;
 
     p_child->i_write_fd = p_child->i_pty_fd;
+
+    {
+        int flags = fcntl(p_child->i_pty_fd, F_GETFL, 0);
+        fcntl(p_child->i_pty_fd, F_SETFL, flags | O_NONBLOCK);
+    }
 }
 
-void
+int
 bfst_child_read(
     struct bfst_tty_ctxt const * const
         p_term_ctxt)
@@ -257,6 +262,8 @@ bfst_child_read(
         bfst_msg("error reading from child pty\n");
 #endif /* #if defined(BFST_CFG_DEBUG) */
     }
+
+    return i_read_count;
 }
 
 void bfst_child_write(

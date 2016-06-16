@@ -59,8 +59,6 @@ bfst_main(
 {
     struct bfst_options o_options;
 
-    XInitThreads();
-
     if (bfst_parse_options(&o_options, argc, argv))
     {
         if (!o_options.opt_debug)

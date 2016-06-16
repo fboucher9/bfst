@@ -58,7 +58,7 @@ struct bfst_child
 /* Interface: */
 
 /* Read from pty of child process */
-void bfst_child_read(
+int bfst_child_read(
     struct bfst_tty_ctxt const * const p_term_ctxt);
 
 /* Write to pty of child process */
