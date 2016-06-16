@@ -30,6 +30,8 @@ Module: bfst_body.c
 
 #include <limits.h>
 
+#include <pthread.h>
+
 #include "bfst_body.h"
 
 /* frames per second st should at maximum draw to the screen */
@@ -870,6 +872,42 @@ bfst_body_check_for_dead(
     }
 }
 
+static pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
+
+static int volatile g_event_count = 0;
+
+void *
+bfst_body_event_thread(
+    void * p_thread_context)
+{
+    struct bfst_body_ctxt * const p_body_ctxt = (struct bfst_body_ctxt *)p_thread_context;
+
+    struct bfst_display const * const p_display = p_body_ctxt->p_display;
+
+    {
+        for (;;)
+        {
+            XEvent ev;
+
+            XNextEvent(p_display->dpy, &ev);
+
+            g_event_count ++;
+
+            if(handler[ev.type])
+            {
+                pthread_mutex_lock(&g_lock);
+
+                (handler[ev.type])(p_body_ctxt, &ev);
+
+                pthread_mutex_unlock(&g_lock);
+            }
+        }
+    }
+
+    return (void *)(0);
+
+}
+
 #define BFST_SELECT_CHILD 1
 #define BFST_SELECT_X11 2
 
@@ -880,7 +918,6 @@ bfst_body_select(
     struct timespec * p_timeout)
 {
     unsigned int ui_select_mask;
-    int i_x11_socket;
     int i_select_result;
     int i;
     unsigned int j;
@@ -889,11 +926,7 @@ bfst_body_select(
 
     ui_select_mask = 0;
 
-    struct bfst_display const * const p_display = p_body_ctxt->p_display;
-
     struct bfst_view_list * const p_view_list = p_body_ctxt->p_view_list;
-
-    i_x11_socket = XConnectionNumber(p_display->dpy);
 
     bfst_view_list_scan(
         p_body_ctxt,
@@ -927,20 +960,10 @@ bfst_body_select(
         }
     }
 
-    FD_SET(i_x11_socket, &o_select_list);
-    if (i_x11_socket > i_fd_max)
-    {
-        i_fd_max = i_x11_socket;
-    }
-
     i_select_result = pselect(i_fd_max+1, &o_select_list, NULL, NULL, p_timeout, NULL);
 
     if (0 == i_select_result)
     {
-        if (XPending(p_display->dpy))
-        {
-            ui_select_mask |= BFST_SELECT_X11;
-        }
     }
     else if (i_select_result > 0)
     {
@@ -954,16 +977,15 @@ bfst_body_select(
             {
                 if (FD_ISSET(p_view->o_tty_list.a_tty_list[i]->child.i_read_fd, &o_select_list))
                 {
+                    pthread_mutex_lock(&g_lock);
+
                     bfst_child_read(&(p_view->o_tty_list.a_tty_list[i]->o_term_ctxt));
+
+                    pthread_mutex_unlock(&g_lock);
 
                     ui_select_mask |= BFST_SELECT_CHILD;
                 }
             }
-        }
-
-        if (FD_ISSET(i_x11_socket, &o_select_list))
-        {
-            ui_select_mask |= BFST_SELECT_X11;
         }
     }
     else
@@ -973,7 +995,14 @@ bfst_body_select(
             return 0;
         }
 
-        bfst_die();
+        /* bfst_die(); */
+    }
+
+    if (g_event_count)
+    {
+        ui_select_mask |= BFST_SELECT_X11;
+
+        g_event_count = 0;
     }
 
     return ui_select_mask;
@@ -983,7 +1012,6 @@ void
 bfst_body_run(
     struct bfst_body * const p_body)
 {
-    XEvent ev;
     int xev, dodraw = 0;
     struct timespec drawtimeout, *tv = NULL, now, last, lastblink;
     unsigned int j;
@@ -994,7 +1022,16 @@ bfst_body_run(
 
     struct bfst_view_list * const p_view_list = p_body_ctxt->p_view_list;
 
+    pthread_t h_xevent_thread;
+
     bfst_view_list_add(p_body_ctxt);
+
+    /* Launch the XEvent loop in a different thread */
+    pthread_create(
+        &(h_xevent_thread),
+        NULL,
+        &bfst_body_event_thread,
+        (void *)(p_body_ctxt));
 
     clock_gettime(CLOCK_MONOTONIC, &last);
 
@@ -1015,16 +1052,6 @@ bfst_body_run(
 
         if (BFST_SELECT_X11 & ui_select_mask)
         {
-            while (XPending(p_display->dpy))
-            {
-                XNextEvent(p_display->dpy, &ev);
-
-                if(handler[ev.type])
-                {
-                    (handler[ev.type])(p_body_ctxt, &ev);
-                }
-            }
-
             xev = actionfps;
 
             /* dodraw = 1; */
@@ -1045,6 +1072,8 @@ bfst_body_run(
 
             if (deltatime > blinktimeout)
             {
+                pthread_mutex_lock(&g_lock);
+
                 for (j=0; j<p_view_list->i_view_count; j++)
                 {
                     struct bfst_view_ctxt * const p_view_ctxt = p_view_list->a_view_list[j];
@@ -1059,6 +1088,8 @@ bfst_body_run(
                         }
                     }
                 }
+
+                pthread_mutex_unlock(&g_lock);
 
                 lastblink = now;
 
@@ -1102,6 +1133,8 @@ bfst_body_run(
 
                 if (p_view)
                 {
+                    pthread_mutex_lock(&g_lock);
+
                     if (b_check_resize && p_view->o_window.i_resize_width_pixels)
                     {
                         /* check for resize... */
@@ -1118,6 +1151,8 @@ bfst_body_run(
                     }
 
                     bfst_draw_all(&p_view->o_view_ctxt);
+
+                    pthread_mutex_unlock(&g_lock);
                 }
             }
 
@@ -1130,28 +1165,8 @@ bfst_body_run(
 
             if (0 == ui_select_mask)
             {
-                if (1)
-                {
-                    if(TIMEDIFF(now, lastblink)
-                        > blinktimeout)
-                    {
-                        drawtimeout.tv_nsec = 10000000;
-                    }
-                    else
-                    {
-                        drawtimeout.tv_nsec = (1E6 *
-                            (blinktimeout -
-                                TIMEDIFF(now,
-                                    lastblink)));
-                    }
-
-                    drawtimeout.tv_sec = drawtimeout.tv_nsec / 1E9;
-                    drawtimeout.tv_nsec %= (long)1E9;
-                }
-                else
-                {
-                    tv = NULL;
-                }
+                drawtimeout.tv_sec = 0;
+                drawtimeout.tv_nsec = 50000000;
             }
         }
     }
