@@ -26,11 +26,7 @@ static void bfst_tty_node_resize(
     tresize( p_term, i_term_width_char, i_term_height_char);
 
     bfst_child_resize(
-        &p_term->o_term_ctxt,
-        p_term->col,
-        p_term->row,
-        p_term->o_term_ctxt.p_view_ctxt->p_window->i_tty_width_pixels,
-        p_term->o_term_ctxt.p_view_ctxt->p_window->i_tty_height_pixels);
+        &p_term->o_term_ctxt);
 }
 
 void bfst_tty_list_init(

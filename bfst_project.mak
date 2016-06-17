@@ -81,19 +81,22 @@ all: $(BFST_DST_PATH)/bfst
 
 # Rule for building target
 $(BFST_DST_PATH)/bfst : $(BFST_SRCS)
-	@echo LD -o $@
-	@$(BFST_CC) -o $@ $(BFST_CFLAGS) $(BFST_SRCS) $(BFST_LFLAGS)
+	@echo linking $@
+	@echo -o $@ $(BFST_CFLAGS) $(BFST_SRCS) $(BFST_LFLAGS) > $@.cmd
+	@$(BFST_CC) @$@.cmd
 
 # Build each object file
 $(BFST_DST_PATH)/_obj_%.o : $(BFST_SRC_PATH)/%.c
-	@echo CC -o $@
-	@$(BFST_CC) -c -o $@ $(BFST_CFLAGS) $<
+	@echo compiling $@
+	@echo -c -o $@ $(BFST_CFLAGS) -MT $@ -MMD -MP -MF $@.d $< > $@.cmd
+	@$(BFST_CC) @$@.cmd
 
 # Build the precompiled header
 $(BFST_DST_PATH)/bfst : $(BFST_DST_PATH)/bfst_os.h.gch
 
 $(BFST_DST_PATH)/bfst_os.h.gch : $(BFST_SRC_PATH)/bfst_os.h
-	$(BFST_CC) -c -o $@ $(BFST_CFLAGS) $(BFST_SRC_PATH)/bfst_os.h
+	@echo generating $@
+	@$(BFST_CC) -c -o $@ $(BFST_CFLAGS) $(BFST_SRC_PATH)/bfst_os.h
 
 # Extra dependencies of target
 $(BFST_DST_PATH)/bfst: $(BFST_HDRS)
@@ -103,5 +106,9 @@ clean:
 	@echo cleaning
 	@rm -f $(BFST_DST_PATH)/bfst
 	@rm -f $(BFST_DST_PATH)/_obj_*.o
+	@rm -f $(BFST_DST_PATH)/_obj_*.o.d
+	@rm -f $(BFST_DST_PATH)/_obj_*.o.cmd
 
 .PHONY: all clean
+
+-include $(BFST_DST_PATH)/_obj_*.o.d

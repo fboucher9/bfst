@@ -255,25 +255,23 @@ void bfst_child_send(
 }
 
 void bfst_child_resize(
-    struct bfst_tty_ctxt const * const p_term_ctxt,
-    unsigned int const col,
-    unsigned int const row,
-    unsigned int const width,
-    unsigned int const height)
+    struct bfst_tty_ctxt const * const p_term_ctxt)
 {
     struct bfst_child * const p_child = p_term_ctxt->p_child;
 
     if (-1 != p_child->i_pty_fd)
     {
+        struct bfst_window const * const p_window = p_term_ctxt->p_view_ctxt->p_window;
+
         struct winsize w;
 
-        w.ws_row = row;
+        w.ws_row = p_window->i_tty_rows;
 
-        w.ws_col = col;
+        w.ws_col = p_window->i_tty_cols;
 
-        w.ws_xpixel = width;
+        w.ws_xpixel = p_window->i_tty_width_pixels;
 
-        w.ws_ypixel = height;
+        w.ws_ypixel = p_window->i_tty_height_pixels;
 
         if (ioctl(p_child->i_pty_fd, TIOCSWINSZ, &w) < 0)
         {

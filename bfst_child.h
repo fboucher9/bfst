@@ -83,10 +83,6 @@ void bfst_child_send(
 
 /* Handling of window resize event */
 void bfst_child_resize(
-    struct bfst_tty_ctxt const * const p_term_ctxt,
-    unsigned int const col,
-    unsigned int const row,
-    unsigned int const width,
-    unsigned int const height);
+    struct bfst_tty_ctxt const * const p_term_ctxt);
 
 /* end-of-file: bfst_child.h */
