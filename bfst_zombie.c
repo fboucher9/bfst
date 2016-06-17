@@ -10,23 +10,7 @@ Description:
 
 */
 
-#include <stdio.h>
-
-#include <errno.h>
-
-#include <string.h>
-
-#include <stdlib.h>
-
-#include <unistd.h>
-
-#include <signal.h>
-
-#include <sys/types.h>
-
-#include <sys/wait.h>
-
-#include <X11/Xlib.h>
+#include "bfst_os.h"
 
 #include "bfst_body.h"
 

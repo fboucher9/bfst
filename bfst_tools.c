@@ -10,17 +10,7 @@ Description:
 
 */
 
-#include <stdarg.h>
-
-#include <stdio.h>
-
-#include <stdlib.h>
-
-#include <string.h>
-
-#include <time.h>
-
-#include <unistd.h>
+#include "bfst_os.h"
 
 #include "bfst_tools.h"
 

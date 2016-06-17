@@ -6,42 +6,7 @@ Module: bfst_child.c
 
 */
 
-/* snprintf() */
-#include <stdio.h>
-
-/* getuid() */
-#include <unistd.h>
-
-/* signal() */
-#include <signal.h>
-
-/* strerror() */
-#include <string.h>
-
-/* errno */
-#include <errno.h>
-
-/* unsetenv() */
-#include <stdlib.h>
-
-/* getpwuid() */
-#include <pwd.h>
-
-/* open() */
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-#include <X11/Xlib.h>
-
-/* openpty() */
-#if   defined(__linux) || 1
- #include <pty.h>
-#elif defined(__OpenBSD__) || defined(__NetBSD__) || defined(__APPLE__)
- #include <util.h>
-#elif defined(__FreeBSD__) || defined(__DragonFly__)
- #include <libutil.h>
-#endif
+#include "bfst_os.h"
 
 #include "bfst_body.h"
 

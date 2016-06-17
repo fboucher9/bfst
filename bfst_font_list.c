@@ -10,6 +10,8 @@ Description:
 
 */
 
+#include "bfst_os.h"
+
 #include "bfst_font_list.h"
 
 #include "bfst_ctxt.h"

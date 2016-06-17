@@ -10,9 +10,7 @@ Description:
 
 */
 
-#include <X11/Xlib.h>
-
-#include <X11/cursorfont.h>
+#include "bfst_os.h"
 
 #include "bfst_body.h"
 

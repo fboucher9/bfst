@@ -10,7 +10,7 @@ Description:
 
 */
 
-#include <string.h>
+#include "bfst_os.h"
 
 #include "bfst_utf8.h"
 

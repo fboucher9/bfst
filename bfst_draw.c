@@ -10,17 +10,7 @@ Tasks:
 
 */
 
-#include <time.h>
-
-#include <stdint.h>
-
-#include <string.h>
-
-#include <stdio.h>
-
-#include <stdlib.h>
-
-#include <X11/Xlib.h>
+#include "bfst_os.h"
 
 #include "bfst_body.h"
 

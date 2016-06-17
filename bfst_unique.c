@@ -10,6 +10,8 @@ Description:
 
 */
 
+#include "bfst_os.h"
+
 #include "bfst_unique.h"
 
 #include "bfst_ctxt.h"

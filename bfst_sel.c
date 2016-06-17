@@ -6,17 +6,7 @@ Module: bfst_sel.c
 
 */
 
-#include <stdio.h>
-
-#include <string.h>
-
-#include <stdlib.h>
-
-#include <time.h>
-
-#include <X11/Xlib.h>
-
-#include <X11/Xatom.h>
+#include "bfst_os.h"
 
 #include "bfst_body.h"
 

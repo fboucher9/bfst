@@ -6,29 +6,7 @@ Module: bfst_body.c
 
 */
 
-#include <stdio.h>
-
-#include <unistd.h>
-
-#include <locale.h>
-
-#include <stdint.h>
-
-#include <stdlib.h>
-
-#include <string.h>
-
-#include <time.h>
-
-#include <errno.h>
-
-#include <sys/select.h>
-
-#include <X11/Xlib.h>
-
-#include <X11/Xutil.h>
-
-#include <limits.h>
+#include "bfst_os.h"
 
 #include "bfst_body.h"
 

@@ -1,3 +1,5 @@
 bfst
 bfst.exe
 tags
+*.o
+*.gch
