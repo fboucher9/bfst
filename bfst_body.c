@@ -109,7 +109,60 @@ nextterm(
 static void openterm(
     struct bfst_view_ctxt const * const p_view_ctxt)
 {
-    bfst_tty_list_add(p_view_ctxt);
+    bfst_tty_list_add(p_view_ctxt, NULL);
+}
+
+/*
+
+Function: detachterm
+
+Description:
+
+    Detach the current tty from the current view and create a new view using
+    the detached tty as its first tty.
+
+*/
+static void detachterm(
+    struct bfst_view_ctxt const * const p_view_ctxt)
+{
+    struct bfst_tty_list * const p_tty_list = p_view_ctxt->p_tty_list;
+
+    /* Make sure there are at least two terminals in this window */
+    if (p_tty_list->i_tty_count > 1)
+    {
+        struct bfst_tty * const p_term = bfst_tab_get(p_view_ctxt);
+
+        if (p_term)
+        {
+            /* remove this tty from the current view */
+            {
+                struct bfst_tab const * const p_tab = p_view_ctxt->p_tab;
+
+                int const i = p_tab->i_tty_index;
+
+                p_tty_list->a_tty_list[i] = NULL;
+
+                int k;
+
+                for (k=i ; k < p_tty_list->i_tty_count - 1; k++)
+                {
+                    p_tty_list->a_tty_list[k] = p_tty_list->a_tty_list[k + 1];
+                }
+
+                p_tty_list->i_tty_count --;
+
+                bfst_tab_refresh(p_view_ctxt);
+            }
+
+            /* insert this tty into a new view */
+            {
+                struct bfst_body_ctxt const * const p_body_ctxt = p_view_ctxt->p_body_ctxt;
+
+                bfst_view_list_add(p_body_ctxt, p_term);
+            }
+        }
+    }
+
 }
 
 static
@@ -120,7 +173,7 @@ openview(
 {
     struct bfst_body_ctxt const * const p_body_ctxt = p_view_ctxt->p_body_ctxt;
 
-    bfst_view_list_add(p_body_ctxt);
+    bfst_view_list_add(p_body_ctxt, NULL);
 }
 
 static
@@ -266,6 +319,7 @@ static struct bfst_shortcut shortcuts[] = {
         { ShiftMask,            XK_Down,        viewlogdn1 },
         { MODKEY,               XK_semicolon,   viewalt    },
         { MODKEY,               XK_f,           nextfont   },
+        { MODKEY,               XK_y,           detachterm },
 };
 
 /*
@@ -962,7 +1016,7 @@ bfst_body_run(
 
     struct bfst_view_list * const p_view_list = p_body_ctxt->p_view_list;
 
-    bfst_view_list_add(p_body_ctxt);
+    bfst_view_list_add(p_body_ctxt, NULL);
 
     clock_gettime(CLOCK_MONOTONIC, &last);
 

@@ -18,6 +18,23 @@ Description:
 
 #define BFST_TTY_LIST_GROW_COUNT 32u
 
+static void bfst_tty_node_resize(
+    struct bfst_tty * const p_term)
+{
+    int const i_term_width_char = p_term->o_term_ctxt.p_view_ctxt->p_window->i_tty_cols;
+
+    int const i_term_height_char = p_term->o_term_ctxt.p_view_ctxt->p_window->i_tty_rows;
+
+    tresize( p_term, i_term_width_char, i_term_height_char);
+
+    bfst_child_resize(
+        &p_term->o_term_ctxt,
+        p_term->col,
+        p_term->row,
+        p_term->o_term_ctxt.p_view_ctxt->p_window->i_tty_width_pixels,
+        p_term->o_term_ctxt.p_view_ctxt->p_window->i_tty_height_pixels);
+}
+
 void bfst_tty_list_init(
     struct bfst_view_ctxt const * const p_view_ctxt)
 {
@@ -38,25 +55,26 @@ void bfst_tty_list_cleanup(
 
 } /* bfst_tty_list_cleanup() */
 
-static struct bfst_tty * bfst_tty_node_new(
-    struct bfst_view_ctxt const * const p_view_ctxt)
-{
-    struct bfst_tty * const p_term = tnew(p_view_ctxt);
-
-    bfst_sel_init(p_term);
-
-    bfst_child_new(&p_term->o_term_ctxt);
-
-    return p_term;
-
-} /* bfst_tty_node_new() */
-
 void bfst_tty_list_add(
-    struct bfst_view_ctxt const * const p_view_ctxt)
+    struct bfst_view_ctxt const * const p_view_ctxt,
+    struct bfst_tty * const p_term_existing)
 {
     struct bfst_tty_list * const p_tty_list = p_view_ctxt->p_tty_list;
 
-    struct bfst_tty * const p_term = bfst_tty_node_new(p_view_ctxt);
+    struct bfst_tty * p_term;
+
+    if (p_term_existing)
+    {
+        p_term = p_term_existing;
+
+        p_term->o_term_ctxt.p_view_ctxt = (struct bfst_view_ctxt *)(p_view_ctxt);
+
+        bfst_tty_node_resize(p_term);
+    }
+    else
+    {
+        p_term = bfst_tty_create(p_view_ctxt);
+    }
 
     if (p_term)
     {
@@ -91,22 +109,7 @@ void bfst_tty_list_check_for_dead(
 
         if (p_term && p_term->child.b_dead)
         {
-            if (p_term->child.i_read_fd != p_term->child.i_pty_fd)
-            {
-                close(p_term->child.i_read_fd);
-            }
-
-            if (p_term->child.i_write_fd != p_term->child.i_pty_fd)
-            {
-                close(p_term->child.i_write_fd);
-            }
-
-            if (-1 != p_term->child.i_pty_fd)
-            {
-                close(p_term->child.i_pty_fd);
-            }
-
-            tdelete(p_term);
+            bfst_tty_destroy(&p_term->o_term_ctxt);
 
             p_tty_list->a_tty_list[i] = NULL;
 
@@ -150,25 +153,8 @@ void bfst_tty_list_sel_clear(
 
 } /* bfst_tty_list_sel_clear() */
 
-static void bfst_tty_node_resize(
-    struct bfst_tty * const p_term,
-    int const i_term_width_char,
-    int const i_term_height_char)
-{
-    tresize( p_term, i_term_width_char, i_term_height_char);
-
-    bfst_child_resize(
-        &p_term->o_term_ctxt,
-        p_term->col,
-        p_term->row,
-        p_term->o_term_ctxt.p_view_ctxt->p_window->i_tty_width_pixels,
-        p_term->o_term_ctxt.p_view_ctxt->p_window->i_tty_height_pixels);
-}
-
 void bfst_tty_list_resize(
-    struct bfst_view_ctxt const * const p_view_ctxt,
-    int const i_term_width_char,
-    int const i_term_height_char)
+    struct bfst_view_ctxt const * const p_view_ctxt)
 {
     int i_term_index;
 
@@ -182,7 +168,7 @@ void bfst_tty_list_resize(
 
         if (p_term)
         {
-            bfst_tty_node_resize(p_term, i_term_width_char, i_term_height_char);
+            bfst_tty_node_resize(p_term);
         }
     }
 }

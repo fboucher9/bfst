@@ -55,7 +55,8 @@ void bfst_tty_list_cleanup(
     struct bfst_view_ctxt const * const p_view_ctxt);
 
 void bfst_tty_list_add(
-    struct bfst_view_ctxt const * const p_view_ctxt);
+    struct bfst_view_ctxt const * const p_view_ctxt,
+    struct bfst_tty * const p_term_existing);
 
 void bfst_tty_list_check_for_dead(
     struct bfst_view_ctxt const * const p_view_ctxt);
@@ -64,8 +65,6 @@ void bfst_tty_list_sel_clear(
     struct bfst_view_ctxt const * const p_view_ctxt);
 
 void bfst_tty_list_resize(
-    struct bfst_view_ctxt const * const p_view_ctxt,
-    int const i_term_width_char,
-    int const i_term_height_char);
+    struct bfst_view_ctxt const * const p_view_ctxt);
 
 /* end-of-file: bfst_tty_list.h */

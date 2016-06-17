@@ -57,6 +57,14 @@ struct bfst_child
 
 /* Interface: */
 
+/* Create a pty and a child process */
+void bfst_child_init(
+    struct bfst_tty_ctxt const * const p_term_ctxt);
+
+/* Release all resources */
+void bfst_child_cleanup(
+    struct bfst_tty_ctxt const * const p_term_ctxt);
+
 /* Read from pty of child process */
 int bfst_child_read(
     struct bfst_tty_ctxt const * const p_term_ctxt);
@@ -66,10 +74,6 @@ void bfst_child_write(
     struct bfst_tty_ctxt const * const p_term_ctxt,
     const char * s,
     unsigned long int n);
-
-/* Create a pty and a child process */
-void bfst_child_new(
-    struct bfst_tty_ctxt const * const p_term_ctxt);
 
 /* Write to pty of child process with echo to tty */
 void bfst_child_send(

@@ -151,7 +151,7 @@ bfst_child_execsh(
     }
 }
 
-void bfst_child_new(
+void bfst_child_init(
     struct bfst_tty_ctxt const * const p_term_ctxt)
 {
     struct bfst_child * const p_child = p_term_ctxt->p_child;
@@ -319,3 +319,54 @@ void bfst_child_resize(
     }
 }
 
+/*
+
+Function: bfst_child_cleanup
+
+Description:
+
+    Release all resources.
+
+Comments:
+
+    -   This is only called when child process has been killed.
+
+*/
+void bfst_child_cleanup(
+    struct bfst_tty_ctxt const * const p_term_ctxt)
+{
+    struct bfst_child * const p_child = p_term_ctxt->p_child;
+
+    /* Release the read file descriptor */
+    if (p_child->i_read_fd != p_child->i_pty_fd)
+    {
+        if (-1 != p_child->i_read_fd)
+        {
+            close(p_child->i_read_fd);
+
+            p_child->i_read_fd = -1;
+        }
+    }
+
+    /* Release the write file descriptor */
+    if (p_child->i_write_fd != p_child->i_pty_fd)
+    {
+        if (-1 != p_child->i_write_fd)
+        {
+            close(p_child->i_write_fd);
+
+            p_child->i_write_fd = -1;
+        }
+    }
+
+    /* Release the master file descriptor */
+    if (-1 != p_child->i_pty_fd)
+    {
+        close(p_child->i_pty_fd);
+
+        p_child->i_pty_fd = -1;
+    }
+
+} /* bfst_child_cleanup() */
+
+/* end-of-file: bfst_child.c */

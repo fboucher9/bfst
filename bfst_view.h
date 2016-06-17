@@ -165,7 +165,8 @@ struct bfst_view
 /* Interface: */
 
 struct bfst_view * bfst_view_new(
-    struct bfst_body_ctxt const * const p_body_ctxt);
+    struct bfst_body_ctxt const * const p_body_ctxt,
+    struct bfst_tty * const p_term_existing);
 
 void bfst_view_delete(
     struct bfst_view_ctxt * const p_view_ctxt);

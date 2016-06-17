@@ -205,10 +205,13 @@ typedef struct bfst_tty
 
 } Term;
 
-Term * tnew(
+/* Create a bfst_tty object */
+struct bfst_tty * bfst_tty_create(
     struct bfst_view_ctxt const * const p_view_ctxt);
 
-void tdelete(Term * p_term);
+/* Release all resources allocated for bfst_tty module. */
+void bfst_tty_destroy(
+    struct bfst_tty_ctxt const * const p_term_ctxt);
 
 void tresize(Term* p_term, int, int);
 

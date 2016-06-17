@@ -31,11 +31,13 @@ bfst_view_list_cleanup(
 void
 bfst_view_list_add(
     struct bfst_body_ctxt const * const
-        p_body_ctxt)
+        p_body_ctxt,
+    struct bfst_tty * const
+        p_term_existing)
 {
     struct bfst_view * p_view;
 
-    p_view = bfst_view_new(p_body_ctxt);
+    p_view = bfst_view_new(p_body_ctxt, p_term_existing);
 
     if (p_view)
     {

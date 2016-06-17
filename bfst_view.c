@@ -58,7 +58,8 @@ Function: bfst_view_init()
 */
 static void bfst_view_init(
     struct bfst_body_ctxt const * const p_body_ctxt,
-    struct bfst_view * const p_view)
+    struct bfst_view * const p_view,
+    struct bfst_tty * const p_term_existing)
 {
     memset(p_view, 0x00, sizeof(struct bfst_view));
 
@@ -87,20 +88,21 @@ static void bfst_view_init(
     bfst_tab_init(&p_view->o_view_ctxt);
 
     /* tty node */
-    bfst_tty_list_add(&p_view->o_view_ctxt);
+    bfst_tty_list_add(&p_view->o_view_ctxt, p_term_existing);
 
     bfst_view_resize(p_view, p_view->o_window.i_width_pixels, p_view->o_window.i_height_pixels);
 
 } /* bfst_view_init() */
 
 struct bfst_view * bfst_view_new(
-    struct bfst_body_ctxt const * const p_body_ctxt)
+    struct bfst_body_ctxt const * const p_body_ctxt,
+    struct bfst_tty * const p_term_existing)
 {
     struct bfst_view * const p_view = (struct bfst_view *)(bfst_malloc(sizeof(struct bfst_view)));
 
     if (p_view)
     {
-        bfst_view_init(p_body_ctxt, p_view);
+        bfst_view_init(p_body_ctxt, p_view, p_term_existing);
     }
 
     return p_view;
@@ -194,7 +196,7 @@ void bfst_view_resize(
 
         bfst_draw_resize(&p_view->o_view_ctxt);
 
-        bfst_tty_list_resize(&p_view->o_view_ctxt, i_term_width_char, i_term_height_char);
+        bfst_tty_list_resize(&p_view->o_view_ctxt);
     }
 
 } /* bfst_view_resize() */

@@ -49,7 +49,8 @@ void bfst_view_list_cleanup(
     struct bfst_body_ctxt const * const p_body_ctxt);
 
 void bfst_view_list_add(
-    struct bfst_body_ctxt const * const p_body_ctxt);
+    struct bfst_body_ctxt const * const p_body_ctxt,
+    struct bfst_tty * const p_term_existing);
 
 void bfst_view_list_remove(
     struct bfst_view_ctxt * const p_view_ctxt);

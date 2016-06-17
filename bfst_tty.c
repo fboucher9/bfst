@@ -200,17 +200,17 @@ treset(Term* p_term) {
         }
 }
 
-Term *
-tnew(
+struct bfst_tty *
+bfst_tty_create(
     struct bfst_view_ctxt const * const p_view_ctxt)
 {
     struct bfst_window const * const p_window = p_view_ctxt->p_window;
 
-    Term * p_term;
+    struct bfst_tty * p_term;
 
-    p_term = (Term *)(bfst_malloc(sizeof(Term)));
+    p_term = (struct bfst_tty *)(bfst_malloc(sizeof(*p_term)));
 
-    memset(p_term, 0x00, sizeof(Term));
+    memset(p_term, 0x00, sizeof(*p_term));
 
     p_term->o_term_ctxt.p_term = p_term;
 
@@ -236,16 +236,24 @@ tnew(
 
     bfst_log_init(&(p_term->o_term_ctxt));
 
+    bfst_sel_init(p_term);
+
+    bfst_child_init(&p_term->o_term_ctxt);
+
     return p_term;
 }
 
 void
-tdelete(
-    Term * p_term)
+bfst_tty_destroy(
+    struct bfst_tty_ctxt const * const p_term_ctxt)
 {
     int i;
 
     struct bfst_line * lp;
+
+    struct bfst_tty * const p_term = p_term_ctxt->p_term;
+
+    bfst_child_cleanup(&(p_term->o_term_ctxt));
 
     bfst_log_cleanup(&(p_term->o_term_ctxt));
 
@@ -1998,4 +2006,3 @@ tresize(Term* p_term, int col, int row)
     p_term->c = c;
 
 }
-
