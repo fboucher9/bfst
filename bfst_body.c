@@ -686,6 +686,8 @@ bfst_set_focus(
     if (
         b_focus_in)
     {
+        XSetICFocus(p_window->h_xic_res);
+
         p_window->state |= WIN_FOCUSED;
 
         if (p_term)
@@ -704,6 +706,8 @@ bfst_set_focus(
     else
     {
         bfst_focus_set(p_body_ctxt, NULL);
+
+        XUnsetICFocus(p_window->h_xic_res);
 
         p_window->state &= ~WIN_FOCUSED;
 
@@ -770,7 +774,7 @@ bfst_handle_kpress(
     char const * customkey;
     int len;
     unsigned long int c;
-    XComposeStatus compstatus;
+    Status dummystatus;
     struct bfst_shortcut *bp;
 
     struct bfst_view_ctxt * const p_view_ctxt = bfst_view_list_find_win(p_body_ctxt, e->window);
@@ -784,7 +788,7 @@ bfst_handle_kpress(
         if(IS_SET(p_term, MODE_KBDLOCK))
             return;
 
-        len = XLookupString(e, buf, sizeof(buf), &ksym, &compstatus);
+        len = Xutf8LookupString(p_view_ctxt->p_window->h_xic_res, e, buf, sizeof(buf), &ksym, &dummystatus);
 
         /* 1. shortcuts */
         for(bp = shortcuts; bp < shortcuts + BFST_TOOLS_LEN(shortcuts); bp++)
@@ -964,9 +968,15 @@ bfst_body_select(
 
             ui_select_mask |= BFST_SELECT_X11;
 
-            if(handler[ev.type])
+            if (XFilterEvent(&ev, None))
             {
-                (handler[ev.type])(p_body_ctxt, &ev);
+            }
+            else
+            {
+                if(handler[ev.type])
+                {
+                    (handler[ev.type])(p_body_ctxt, &ev);
+                }
             }
         }
     }

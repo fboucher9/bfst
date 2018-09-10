@@ -134,6 +134,43 @@ static void bfst_window_init_resource(
             | CWEventMask | CWColormap,
             &o_window_attributes);
 
+    p_window->h_xim_res = XOpenIM(p_display->dpy, NULL, NULL, NULL);
+    if (p_window->h_xim_res)
+    {
+    }
+    else
+    {
+        XSetLocaleModifiers("@im=local");
+        p_window->h_xim_res = XOpenIM(p_display->dpy, NULL, NULL, NULL);
+        if (p_window->h_xim_res)
+        {
+        }
+        else
+        {
+            XSetLocaleModifiers("@im=");
+            p_window->h_xim_res = XOpenIM(p_display->dpy, NULL, NULL, NULL);
+            if (p_window->h_xim_res)
+            {
+            }
+            else
+            {
+            }
+        }
+    }
+
+    if (p_window->h_xim_res)
+    {
+        p_window->h_xic_res = XCreateIC(
+            p_window->h_xim_res,
+            XNInputStyle,
+            XIMPreeditNothing | XIMStatusNothing,
+            XNClientWindow,
+            p_window->h_win_res,
+            XNFocusWindow,
+            p_window->h_win_res,
+            NULL);
+    }
+
 } /* bfst_window_init_resource() */
 
 static void bfst_window_cleanup_resource(

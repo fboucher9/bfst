@@ -29,6 +29,12 @@ struct bfst_window
     /* Window resource handle */
     Window h_win_res;
 
+    /* Input method handle */
+    XIM h_xim_res;
+
+    /* Input method context */
+    XIC h_xic_res;
+
     /* Terminal width in pixels */
     unsigned int i_tty_width_pixels;
 
