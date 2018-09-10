@@ -89,7 +89,7 @@ bfst_child_execsh(
         bfst_die();
     }
 
-    sh[0] = getenv("SHELL");
+    sh[0] = "/bin/snck";
 
     sh[1] = NULL;
 
@@ -98,7 +98,7 @@ bfst_child_execsh(
         sh[0] = (pw->pw_shell[0]) ? pw->pw_shell : a_bfst_child_shell;
     }
 
-    bfst_child_fixenv(pw->pw_name, pw->pw_dir, sh[0], win);
+    bfst_child_fixenv(pw->pw_name, pw->pw_dir, "/bin/bash", win);
 
     bfst_child_fixsig();
 
